@@ -1,0 +1,9 @@
+{
+  "name": "aoc2018",
+  "version": "1.0.0",
+  "description": "Advent of Code 2018",
+  "author": "Martin Bielecki",
+  "dependencies": {
+    "lodash": "^4.17.11"
+  }
+}
