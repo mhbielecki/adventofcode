@@ -1,4 +1,5 @@
 const fs = require('fs')
+const _ = require('lodash');
 
 fs.readFile('../input/2.txt', 'utf8', (err, contents) => {
     const codes = contents.split("\n").map(x => x.trim());
@@ -19,9 +20,19 @@ fs.readFile('../input/2.txt', 'utf8', (err, contents) => {
     // Part 2
     codes.forEach((code, idx) => {
         let subSet = codes.slice(idx+1);
-        let s = code.split("");
         subSet.forEach(sub => {
-            let subs = sub.split("")
+            let charPairs = _.zip(code.split(""), sub.split(""));
+            let boxIdPairSummary = charPairs.reduce((acc, charPair) => {
+                if (charPair[0] === charPair[1]) {
+                    return { commonLetters: acc.commonLetters+=charPair[0], ...acc};
+                }
+                return { diff: acc.diff+=1, ...acc};
+
+            }, { diff: 0, commonLetters: ""});
+            if (boxIdPairSummary.diff === 1) {
+                console.log(`Result part 2: ${boxIdPairSummary.commonLetters}`);
+                return;
+            }
         })
     });
 });
