@@ -3,10 +3,10 @@ const fs = require('fs')
 class Claim {
     constructor(id, leftOffset, topOffset, width, height) {
         this.id = id;
-        this.leftOffset = parseInt(leftOffset);
-        this.topOffset = parseInt(topOffset);
-        this.width = parseInt(width);
-        this.height = parseInt(height);
+        this.leftOffset = leftOffset;
+        this.topOffset = topOffset;
+        this.width = width;
+        this.height = height;
     }
 }
 
@@ -17,7 +17,7 @@ fs.readFile('../input/3.txt', 'utf8', (err, contents) => {
             .split("\r\n")
             .map(claim => {
                 let m = claimLine.exec(claim);
-                return new Claim(m[1], m[2], m[3], m[4], m[5])
+                return new Claim(+m[1], +m[2], +m[3], +m[4], +m[5])
             });
 
     const squareInches = {}
