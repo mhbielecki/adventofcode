@@ -24,16 +24,16 @@ fs.readFile('../input/2.txt', 'utf8', (err, contents) => {
             let charPairs = _.zip(code.split(""), sub.split(""));
             let boxIdPairSummary = charPairs.reduce((acc, charPair) => {
                 if (charPair[0] === charPair[1]) {
-                    return { commonLetters: acc.commonLetters+=charPair[0], ...acc};
+                    return { commonLetters: acc.commonLetters+=charPair[0], ...acc };
                 }
-                return { diff: acc.diff+=1, ...acc};
+                return { diff: acc.diff+=1, ...acc };
 
-            }, { diff: 0, commonLetters: ""});
+            }, { diff: 0, commonLetters: "" });
             if (boxIdPairSummary.diff === 1) {
                 console.log(`Result part 2: ${boxIdPairSummary.commonLetters}`);
                 return;
             }
-        })
+        });
     });
 });
 
@@ -43,5 +43,5 @@ const letter_count = (n) => {
             if (value === n) return acc + 1;
         }
         return acc;
-    }
-}
+    };
+};
