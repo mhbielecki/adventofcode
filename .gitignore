@@ -1,1 +1,6 @@
+# JavaScript
 node_modules/
+
+# Rust
+target/
+**/*.rs.bk
