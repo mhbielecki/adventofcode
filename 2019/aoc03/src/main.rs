@@ -8,33 +8,54 @@ fn main() {
         .expect("Something went wrong reading the file.");
 
     let input: Vec<&str> = contents.split("\n").collect();
-
-    let wire_1_path: Vec<&str> = input[0].split(",").collect();
-    let wire_2_path: Vec<&str> = input[1].split(",").collect();
-
-    let w1_cords = generate_cordinates(wire_1_path);
-    let w2_cords = generate_cordinates(wire_2_path);
+    let w1_cords = generate_cordinates(input[0].split(",").collect());
+    let w2_cords = generate_cordinates(input[1].split(",").collect());
 
     let crossed_points: HashSet<_> = w1_cords.intersection(&w2_cords).collect();
     let mut manhattans: Vec<i32> = crossed_points.iter().map(|x| manhattan_distance(x.0, x.1)).collect();
     manhattans.sort();
 
-    println!("{}", manhattans[0]);
+    println!("Part 1: {}", manhattans[0]);
 }
 
 fn generate_cordinates(wire_path: Vec<&str>) -> HashSet<(i32, i32)>	{
-    // https://doc.rust-lang.org/std/collections/struct.HashSet.html
-    // Use hashset with coords, intersect to find common, use manhattan distance to find closest
     let mut h = HashSet::new();
     let re = Regex::new(r"([UDLR])(\d+)").unwrap();
+    let mut current_pos = (0,0);
 
     for p in wire_path {
         let caps = re.captures(p).unwrap();
         let dir = caps.get(1).map_or("", |m| m.as_str());
-        let end_pos = caps.get(2).map_or("", |m| m.as_str());
-        println!("{} {}", dir, end_pos);
+        let steps = caps.get(2).map_or("", |m| m.as_str()).parse::<i32>().unwrap();
+        if dir == "U" {
+            for n in current_pos.1..=current_pos.1+steps {
+                h.insert((current_pos.0, n));
+            }
+            current_pos.1 += steps;
+        }
+        else if dir == "D" {
+            for n in current_pos.1-steps..=current_pos.1 {
+                h.insert((current_pos.0, n));
+            }
+            current_pos.1 -= steps;
+
+        }
+        else if dir == "L" {
+            for n in current_pos.0-steps..=current_pos.0 {
+                h.insert((n, current_pos.1));
+            }
+            current_pos.0 -= steps;
+
+        }
+        else {
+            for n in current_pos.0..=current_pos.0+steps {
+                h.insert((n, current_pos.1));
+            }
+            current_pos.0 += steps;
+        }
     }
 
+    h.remove(&(0,0));
     return h;
 }
 
