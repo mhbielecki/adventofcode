@@ -73,7 +73,7 @@ fn generate_cordinates(wire_path: Vec<&str>) -> HashMap<(i32, i32), i32> {
         }
         else if dir == "L" {
             for n in (current_pos.0-steps..current_pos.0).rev() {
-                total_steps+=1; //speilvenna L og D, Ikke generer fra bakover...
+                total_steps+=1;
                 if !h.contains_key(&(n, current_pos.1)) {
                     h.insert((n, current_pos.1), total_steps);
                 }
@@ -96,5 +96,5 @@ fn generate_cordinates(wire_path: Vec<&str>) -> HashMap<(i32, i32), i32> {
 }
 
 fn manhattan_distance(x: i32, y: i32) -> i32 {
-    return (x-0).abs() + (y-0).abs();
+    return x.abs() + y.abs();
 }
