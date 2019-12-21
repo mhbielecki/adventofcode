@@ -18,6 +18,10 @@ const ADD: i32 = 1;
 const MUL: i32 = 2;
 const INPUT: i32 = 3;
 const OUTPUT: i32 = 4;
+const JT: i32 = 5;
+const JF: i32 = 6;
+const LT: i32 = 7;
+const EQ: i32 = 8;
 const HALT: i32 = 99;
 
 struct IntCodeInterpreter {
@@ -67,7 +71,47 @@ impl IntCodeInterpreter {
         self.step(2);
     }
 
-    fn get_parameter(&self, param_number: i32) -> i32 {
+    fn jump_true(&mut self) {
+        let first_param = self.get_operand(1);
+        if first_param != 0 {
+            self.instruction_pointer = self.get_operand(2) as usize;
+        } else {
+            self.step(3);
+        }
+    }
+
+    fn jump_false(&mut self) {
+        let first_param = self.get_operand(1);
+        if first_param == 0 {
+            self.instruction_pointer = self.get_operand(2) as usize;
+        } else {
+            self.step(3);
+        }
+    }
+
+    fn less_than(&mut self) {
+        let operands = self.get_operands();
+        let store_pos = self.memory[self.instruction_pointer + 3] as usize;
+        if operands.0 < operands.1 {
+            self.memory[store_pos] = 1;
+        } else {
+            self.memory[store_pos] = 0;
+        }
+        self.step(4);
+    }
+
+    fn equal(&mut self) {
+        let operands = self.get_operands();
+        let store_pos = self.memory[self.instruction_pointer + 3] as usize;
+        if operands.0 == operands.1 {
+            self.memory[store_pos] = 1;
+        }  else {
+            self.memory[store_pos] = 0;
+        }
+        self.step(4);
+    }
+
+    fn get_parameter(&self, param_number: usize) -> i32 {
         (self.memory[self.instruction_pointer] / (10_i32.pow((param_number+1) as u32))) % 10
     }
      
@@ -83,11 +127,17 @@ impl IntCodeInterpreter {
         self.instruction_pointer = self.instruction_pointer + steps;
     }
 
+    fn get_operand(&self, position: usize) -> i32 {
+        if self.get_parameter(position) == 0 {
+             self.read_positional_value(position)}
+        else {
+            self.read_immediate_value(position)
+        }
+    }
+
     fn get_operands(&self) -> (i32, i32) {
-        let param_1 = self.get_parameter(1);
-        let param_2 = self.get_parameter(2);
-        let val_a = if param_1 == 0 { self.read_positional_value(1)} else {self.read_immediate_value(1)};
-        let val_b = if param_2 == 0 { self.read_positional_value(2)} else {self.read_immediate_value(2)};
+        let val_a = self.get_operand(1);
+        let val_b = self.get_operand(2);
         (val_a, val_b)
     }
 
@@ -100,10 +150,13 @@ impl IntCodeInterpreter {
                 MUL => self.mul(),
                 INPUT => self.input(),
                 OUTPUT => self.output(),
+                JT => self.jump_true(),
+                JF => self.jump_false(),
+                LT => self.less_than(),
+                EQ => self.equal(),
                 HALT => break,
                 _ => {
-                    eprintln!("Unknown op-code: {}", self.memory[self.instruction_pointer]);
-                    break;
+                    panic!("Unknown op-code: {}", self.memory[self.instruction_pointer]);
                 }
             }
         }
