@@ -39,15 +39,13 @@ impl IntCodeInterpreter {
 
     fn add(&mut self) {
         let operands = self.get_operands();
-        let store_pos = self.memory[self.instruction_pointer + 3] as usize;
-        self.memory[store_pos] = operands.0 + operands.1;
+        self.store(operands.0 + operands.1, 3);
         self.step(4);
     }
 
     fn mul(&mut self) {
         let operands = self.get_operands();
-        let store_pos = self.memory[self.instruction_pointer + 3] as usize;
-        self.memory[store_pos] = operands.0 * operands.1;
+        self.store(operands.0 * operands.1, 3);
         self.step(4);
     }
 
@@ -56,8 +54,7 @@ impl IntCodeInterpreter {
         let mut input = String::new();
         io::stdin().read_line(&mut input).unwrap();
         let n: i32 = input.trim().parse().unwrap();
-        let store_pos = self.memory[self.instruction_pointer + 1] as usize;
-        self.memory[store_pos] = n;
+        self.store(n, 1);
         self.step(2);
     }
 
@@ -91,40 +88,22 @@ impl IntCodeInterpreter {
 
     fn less_than(&mut self) {
         let operands = self.get_operands();
-        let store_pos = self.memory[self.instruction_pointer + 3] as usize;
         if operands.0 < operands.1 {
-            self.memory[store_pos] = 1;
+            self.store(1, 3);
         } else {
-            self.memory[store_pos] = 0;
+            self.store(0, 3);
         }
         self.step(4);
     }
 
     fn equal(&mut self) {
         let operands = self.get_operands();
-        let store_pos = self.memory[self.instruction_pointer + 3] as usize;
         if operands.0 == operands.1 {
-            self.memory[store_pos] = 1;
+            self.store(1, 3);
         }  else {
-            self.memory[store_pos] = 0;
+            self.store(0, 3);
         }
         self.step(4);
-    }
-
-    fn get_parameter(&self, param_number: usize) -> i32 {
-        (self.memory[self.instruction_pointer] / (10_i32.pow((param_number+1) as u32))) % 10
-    }
-     
-    fn read_positional_value(&self, offset: usize) -> i32 {
-        self.memory[self.memory[self.instruction_pointer + offset] as usize]
-    }
-
-    fn read_immediate_value(&self, offset: usize) -> i32 {
-        self.memory[self.instruction_pointer + offset]
-    }
-
-    fn step(&mut self, steps: usize) {
-        self.instruction_pointer = self.instruction_pointer + steps;
     }
 
     fn get_operand(&self, position: usize) -> i32 {
@@ -139,6 +118,27 @@ impl IntCodeInterpreter {
         let val_a = self.get_operand(1);
         let val_b = self.get_operand(2);
         (val_a, val_b)
+    }
+
+    fn step(&mut self, steps: usize) {
+        self.instruction_pointer = self.instruction_pointer + steps;
+    }
+
+    fn store(&mut self, value: i32, offset: usize) {
+        let store_pos = self.memory[self.instruction_pointer + offset] as usize;
+        self.memory[store_pos] = value;
+    }
+
+    fn get_parameter(&self, param_number: usize) -> i32 {
+        (self.memory[self.instruction_pointer] / (10_i32.pow((param_number+1) as u32))) % 10
+    }
+     
+    fn read_positional_value(&self, offset: usize) -> i32 {
+        self.memory[self.memory[self.instruction_pointer + offset] as usize]
+    }
+
+    fn read_immediate_value(&self, offset: usize) -> i32 {
+        self.memory[self.instruction_pointer + offset]
     }
 
     fn run(&mut self) {
