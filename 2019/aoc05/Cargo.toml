@@ -5,3 +5,4 @@ authors = ["Martin Bielecki <Martin.Bielecki@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+intcodecomputer = { path = "../intcodecomputer" }
