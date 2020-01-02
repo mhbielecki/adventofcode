@@ -13,6 +13,8 @@ const HALT: i32 = 99;
 pub struct IntCodeInterpreter {
     instruction_pointer: usize,
     memory: Vec<i32>,
+    custom_input: Vec<i32>,
+    output: Vec<i32>
 }
 
 impl IntCodeInterpreter {
@@ -20,6 +22,8 @@ impl IntCodeInterpreter {
         IntCodeInterpreter {
             instruction_pointer: 0,
             memory: input_program,
+            custom_input: Vec::new(),
+            output: Vec::new()
         }
     }
 
@@ -36,10 +40,15 @@ impl IntCodeInterpreter {
     }
 
     fn input(&mut self) {
-        println!("input:");
-        let mut input = String::new();
-        io::stdin().read_line(&mut input).unwrap();
-        let n: i32 = input.trim().parse().unwrap();
+        let mut n: i32 = 0;
+        if self.custom_input.len() > 0 {
+            n = self.custom_input.remove(0);
+        } else {
+            println!("input:");
+            let mut input = String::new();
+            io::stdin().read_line(&mut input).unwrap();
+            n = input.trim().parse().unwrap();
+        }
         self.store(n, 1);
         self.step(2);
     }
@@ -47,9 +56,13 @@ impl IntCodeInterpreter {
     fn output(&mut self) {
         let param = self.get_parameter(1);
         if param == 0 {
-            println!("{}", self.read_positional_value(1));
+            let v = self.read_positional_value(1);
+            self.output.push(v);
+            println!("{}", v);
         } else {
-            println!("{}", self.read_immediate_value(1));
+            let v = self.read_immediate_value(1);
+            self.output.push(v);
+            println!("{}", v);
         }
         self.step(2);
     }
@@ -125,6 +138,17 @@ impl IntCodeInterpreter {
 
     fn read_immediate_value(&self, offset: usize) -> i32 {
         self.memory[self.instruction_pointer + offset]
+    }
+
+    pub fn add_custom_input(&mut self, input: i32) {
+        self.custom_input.push(input);
+    }
+
+    pub fn get_last_output(&mut self) -> i32 {
+        match self.output.pop() {
+            Some(v) => v,
+            None => -1
+        }
     }
 
     pub fn run(&mut self) {
