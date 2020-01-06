@@ -8,13 +8,15 @@ const JT: i32 = 5;
 const JF: i32 = 6;
 const LT: i32 = 7;
 const EQ: i32 = 8;
+const ADJUST_REL_BASE: i32 = 9;
 const HALT: i32 = 99;
 
 pub struct IntCodeInterpreter {
     instruction_pointer: usize,
     memory: Vec<i32>,
     custom_input: Vec<i32>,
-    output: Vec<i32>
+    output: Vec<i32>,
+    relative_base: i32
 }
 
 impl IntCodeInterpreter {
@@ -23,7 +25,8 @@ impl IntCodeInterpreter {
             instruction_pointer: 0,
             memory: input_program,
             custom_input: Vec::new(),
-            output: Vec::new()
+            output: Vec::new(),
+            relative_base: 0
         }
     }
 
@@ -140,6 +143,11 @@ impl IntCodeInterpreter {
         self.memory[self.instruction_pointer + offset]
     }
 
+    fn adjust_relative_base(&self) {
+        //TODO
+
+    }
+
     pub fn add_custom_input(&mut self, input: i32) {
         self.custom_input.push(input);
     }
@@ -164,6 +172,7 @@ impl IntCodeInterpreter {
                 JF => self.jump_false(),
                 LT => self.less_than(),
                 EQ => self.equal(),
+                ADJUST_REL_BASE => self.adjust_relative_base(),
                 HALT => break,
                 _ => {
                     panic!("Unknown op-code: {}", self.memory[self.instruction_pointer]);
