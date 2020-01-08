@@ -13,14 +13,14 @@ const HALT: i32 = 99;
 
 pub struct IntCodeInterpreter {
     instruction_pointer: usize,
-    memory: Vec<i32>,
-    custom_input: Vec<i32>,
-    output: Vec<i32>,
+    memory: Vec<i64>,
+    custom_input: Vec<i64>,
+    output: Vec<i64>,
     relative_base: i32
 }
 
 impl IntCodeInterpreter {
-    pub fn new(input_program: Vec<i32>) -> IntCodeInterpreter {
+    pub fn new(input_program: Vec<i64>) -> IntCodeInterpreter {
         IntCodeInterpreter {
             instruction_pointer: 0,
             memory: input_program,
@@ -43,7 +43,7 @@ impl IntCodeInterpreter {
     }
 
     fn input(&mut self) {
-        let mut n: i32 = 0;
+        let mut n: i64 = 0;
         if self.custom_input.len() > 0 {
             n = self.custom_input.remove(0);
         } else {
@@ -108,7 +108,7 @@ impl IntCodeInterpreter {
         self.step(4);
     }
 
-    fn get_operand(&self, position: usize) -> i32 {
+    fn get_operand(&self, position: usize) -> i64 {
         if self.get_parameter(position) == 0 {
              self.read_positional_value(position)}
         else {
@@ -116,7 +116,7 @@ impl IntCodeInterpreter {
         }
     }
 
-    fn get_operands(&self) -> (i32, i32) {
+    fn get_operands(&self) -> (i64, i64) {
         let val_a = self.get_operand(1);
         let val_b = self.get_operand(2);
         (val_a, val_b)
@@ -126,20 +126,20 @@ impl IntCodeInterpreter {
         self.instruction_pointer = self.instruction_pointer + steps;
     }
 
-    fn store(&mut self, value: i32, offset: usize) {
+    fn store(&mut self, value: i64, offset: usize) {
         let store_pos = self.memory[self.instruction_pointer + offset] as usize;
         self.memory[store_pos] = value;
     }
 
-    fn get_parameter(&self, param_number: usize) -> i32 {
-        (self.memory[self.instruction_pointer] / (10_i32.pow((param_number+1) as u32))) % 10
+    fn get_parameter(&self, param_number: usize) -> i64 {
+        (self.memory[self.instruction_pointer] / ((10_i64.pow((param_number+1) as u32))) % 10 as i64)
     }
      
-    fn read_positional_value(&self, offset: usize) -> i32 {
+    fn read_positional_value(&self, offset: usize) -> i64 {
         self.memory[self.memory[self.instruction_pointer + offset] as usize]
     }
 
-    fn read_immediate_value(&self, offset: usize) -> i32 {
+    fn read_immediate_value(&self, offset: usize) -> i64 {
         self.memory[self.instruction_pointer + offset]
     }
 
@@ -148,11 +148,11 @@ impl IntCodeInterpreter {
 
     }
 
-    pub fn add_custom_input(&mut self, input: i32) {
+    pub fn add_custom_input(&mut self, input: i64) {
         self.custom_input.push(input);
     }
 
-    pub fn get_last_output(&mut self) -> i32 {
+    pub fn get_last_output(&mut self) -> i64 {
         match self.output.pop() {
             Some(v) => v,
             None => -1
@@ -163,7 +163,7 @@ impl IntCodeInterpreter {
         loop {
             let opcode = self.memory[self.instruction_pointer] % 100;
 
-            match opcode {
+            match opcode as i32 {
                 ADD => self.add(),
                 MUL => self.mul(),
                 INPUT => self.input(),
