@@ -4,6 +4,6 @@
   "description": "Advent of Code 2018",
   "author": "Martin Bielecki",
   "dependencies": {
-    "lodash": "^4.17.11"
+    "lodash": "^4.17.13"
   }
 }
