@@ -10,6 +10,6 @@ fn main() {
         .map(|x| x.parse::<i64>().unwrap())
         .collect();
 
-    // let mut interpreter = IntCodeInterpreter::new(int_code_program);
-    // interpreter.run();
+    let mut interpreter = IntCodeInterpreter::new(int_code_program);
+    interpreter.run();
 }

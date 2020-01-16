@@ -16,14 +16,16 @@ pub struct IntCodeInterpreter {
     memory: Vec<i64>,
     custom_input: Vec<i64>,
     output: Vec<i64>,
-    relative_base: i32
+    relative_base: usize
 }
 
 impl IntCodeInterpreter {
     pub fn new(input_program: Vec<i64>) -> IntCodeInterpreter {
+        let mut mem = input_program.clone();
+        mem.append(&mut vec![0; 100000000]);
         IntCodeInterpreter {
             instruction_pointer: 0,
-            memory: input_program,
+            memory: mem,
             custom_input: Vec::new(),
             output: Vec::new(),
             relative_base: 0
@@ -43,7 +45,7 @@ impl IntCodeInterpreter {
     }
 
     fn input(&mut self) {
-        let mut n: i64 = 0;
+        let mut n: i64;
         if self.custom_input.len() > 0 {
             n = self.custom_input.remove(0);
         } else {
@@ -58,12 +60,17 @@ impl IntCodeInterpreter {
 
     fn output(&mut self) {
         let param = self.get_parameter(1);
+
         if param == 0 {
             let v = self.read_positional_value(1);
             self.output.push(v);
             println!("{}", v);
-        } else {
+        } else if param == 1 {
             let v = self.read_immediate_value(1);
+            self.output.push(v);
+            println!("{}", v);
+        } else {
+            let v = self.read_relative_value(1);
             self.output.push(v);
             println!("{}", v);
         }
@@ -109,10 +116,11 @@ impl IntCodeInterpreter {
     }
 
     fn get_operand(&self, position: usize) -> i64 {
-        if self.get_parameter(position) == 0 {
-             self.read_positional_value(position)}
-        else {
-            self.read_immediate_value(position)
+        match self.get_parameter(position) {
+            0 => self.read_positional_value(position),
+            1 => self.read_immediate_value(position),
+            2 => self.read_relative_value(position),
+            _ => panic!("Error: invalid position in get_operand")
         }
     }
 
@@ -126,9 +134,19 @@ impl IntCodeInterpreter {
         self.instruction_pointer = self.instruction_pointer + steps;
     }
 
-    fn store(&mut self, value: i64, offset: usize) {
-        let store_pos = self.memory[self.instruction_pointer + offset] as usize;
-        self.memory[store_pos] = value;
+    fn store(&mut self, value: i64, param_number: usize) {
+        let param = self.get_parameter(param_number);
+        let mut idx = 0;
+        if param == 0 {
+            idx = self.memory[self.instruction_pointer + param_number]
+
+        } else if param == 2 {
+            idx = self.read_immediate_value(param_number) + (self.relative_base as i64);
+        } 
+        else {
+            panic!("Error: invalid parameter in input")
+        }
+        self.memory[idx as usize] = value;
     }
 
     fn get_parameter(&self, param_number: usize) -> i64 {
@@ -143,9 +161,16 @@ impl IntCodeInterpreter {
         self.memory[self.instruction_pointer + offset]
     }
 
-    fn adjust_relative_base(&self) {
-        //TODO
+    fn read_relative_value(&self, offset: usize) -> i64 {
+        let f = self.read_immediate_value(offset) as i64;
+        let index = (self.relative_base as i64) + f;
+        self.memory[index as usize]
+    }
 
+    fn adjust_relative_base(&mut self) {
+        let first_param = self.get_operand(1);
+        self.relative_base = (self.relative_base as i64 + first_param) as usize;
+        self.step(2);
     }
 
     pub fn add_custom_input(&mut self, input: i64) {
@@ -162,7 +187,6 @@ impl IntCodeInterpreter {
     pub fn run(&mut self) {
         loop {
             let opcode = self.memory[self.instruction_pointer] % 100;
-
             match opcode as i32 {
                 ADD => self.add(),
                 MUL => self.mul(),
