@@ -5,6 +5,9 @@ Solutions to the [Advent of Code](https://adventofcode.com/ "Advent of Code") ex
 ### 2015
 F#
 
+### 2016
+-
+
 ### 2018
 JavaScript
  
