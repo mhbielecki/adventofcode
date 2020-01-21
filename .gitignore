@@ -1,3 +1,5 @@
+# General
+.vscode
 # F#
 bin/
 obj/
