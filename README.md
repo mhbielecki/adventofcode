@@ -6,13 +6,16 @@ Solutions to the [Advent of Code](https://adventofcode.com/ "Advent of Code") ex
 F#
 
 ### 2016
--
+?
 
 ### 2017
--
+?
 
 ### 2018
 JavaScript
  
 ### 2019 
 Rust
+
+### 2020 
+Python
