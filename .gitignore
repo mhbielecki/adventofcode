@@ -1,7 +1,12 @@
-# F#
+# F# / C#
 bin/
 obj/
 .vs/
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
 
 # JavaScript
 node_modules/
