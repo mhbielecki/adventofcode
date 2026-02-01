@@ -21,7 +21,7 @@ let calcKeyPart prefix =
     let mutable i = 1
     while not found do
         let md5 = MD5Hash(input + i.ToString())
-        if md5.StartsWith(prefix) then found <- true
+        if md5.StartsWith(prefix : string) then found <- true
         else i <- i+1
     i
 
@@ -29,7 +29,7 @@ let calcKeyPart prefix =
 let calcKeypart' prefix =
     let rec inner index =
         let md5 = MD5Hash(input + index.ToString())
-        if md5.StartsWith(prefix) then index
+        if md5.StartsWith(prefix : string) then index
         else inner (index+1)
     inner 1
 
